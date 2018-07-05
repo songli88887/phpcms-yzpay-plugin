@@ -1,0 +1,22 @@
+.content{
+  padding: 20px;
+}
+.pointer{
+  cursor: pointer;
+}
+.color-success{
+  color:rgb(67, 228, 67);
+}
+.color-error{
+  color:rgb(223, 68, 41);
+}
+.no-padding input{
+  padding: 0;
+  text-align: center;
+}
+.text-center{
+  text-align: center;
+}
+.w-full{width: 100%;}
+.block{display: block;}
+.hide{display: none;}
