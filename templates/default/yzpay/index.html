@@ -51,11 +51,11 @@
         $('#qr_code img').attr('src',res.data.qr_code);
         $('#qr_code').css('display','block');
         var timer=setInterval(function(){
-          payStatus(res.data.response.qr_id,function(o){
+          payStatus(res.data.qr_id,function(o){
             if(o){
               $('#qr_code').css('display','none');
               clearInterval(timer);
-              alert('充值成功'+o.tid);
+              alert(o);
             }
           })
         },5000)
@@ -64,7 +64,8 @@
   }
 
   function payStatus(qr_id,cb){
-    $.post('/index.php?m=yzpay&c=index&a=payStatus',{qr_id:qr_id},function(res){
+    $.post('/index.php?m=yzpay&c=index&a=payStatusM',{qr_id:qr_id},function(res){
+      res=typeof res=='string'?JSON.parse(res):res;
       if(res.errno==0)
         cb(res.data)
       else cb(false)

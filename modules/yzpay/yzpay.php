@@ -10,27 +10,6 @@ class yzpay extends admin {
     }
 
     function init(){
-        // $yzconfig=getcache('yzpay','config');
-        // $yz=new yz($yzconfig);
-        //$list=$yz->yz_trades_list();
-        //$tree=pc_base::load_sys_class('tree');
-//        $db=pc_base::load_model('category_model');
-//        $category=$db->select();
-//        $cates=$tree->init($category);
-//        $cates=$tree->get_tree_array(0);
-        //echo "<pre>";
-        //print_r($cates);
-        //var_dump($list['response']['qr_trades']);
-        //echo "</pre>";
-        //mysql_query('BEGIN');
-	
-	// //$res=$this->db->query($sql);
-        // $res=mysql_query($sql);
-        // if($res){
-        //     mysql_query('COMMIT');
-        //     var_dump($res);
-        // }
-        //elog('ini t','init');
         include $this->admin_tpl('yzpay_admin');
     }
 
@@ -40,11 +19,11 @@ class yzpay extends admin {
         else fail('请配置参数！');
     }
     function saveConfig(){
-        $app_id=$_POST['app_id'];
-        $app_secret=$_POST['app_secret'];
-        $kdt_id=$_POST['kdt_id'];
-        $qr_source=$_POST['qr_source'];
-        $pay_desc=$_POST['pay_desc'];
+        $app_id=safe_replace($_POST['app_id']);
+        $app_secret=safe_replace($_POST['app_secret']);
+        $kdt_id=safe_replace($_POST['kdt_id']);
+        $qr_source=safe_replace($_POST['qr_source']);
+        $pay_desc=safe_replace($_POST['pay_desc']);
         $data=array('app_id'=>$app_id,'app_secret'=>$app_secret,'kdt_id'=>$kdt_id,'qr_source'=>$qr_source,'pay_desc'=>$pay_desc);
 	try{
         $list=$this->db->get_one(array('id'=>1));
@@ -78,11 +57,11 @@ class yzpay extends admin {
     }
 
     function getTrades(){
-        $page=(int)$_POST['page'];
-        $pagesize=(int)$_POST['pagesize'];
-        $status=$_POST['status'];
-        $start_create=$_POST['start_create'];
-        $end_create=$_POST['end_create'];
+        $page=(int)safe_replace($_POST['page']);
+        $pagesize=(int)safe_replace($_POST['pagesize']);
+        $status=safe_replace($_POST['status']);
+        $start_create=safe_replace($_POST['start_create']);
+        $end_create=safe_replace($_POST['end_create']);
         if(empty($page)) $page=1;
         if(empty($pagesize))$pagesize=10;
         $where='';
@@ -93,11 +72,9 @@ class yzpay extends admin {
         if($where!='') $where=' where '.$where.' a.qr_name like "%|'.$config['qr_source'].'"';
         $page_start=$pagesize*($page-1);
         try{
-            //$sql='select * from phpcms_yzpay_trades '.$where.'  order by created_date desc limit '.$page_start.','.$pagesize.'';
             $sql='select a.*,c.username,c.amount from phpcms_yzpay_trades as a left join phpcms_yzpay_create_qr as b on a.qr_id=b.qr_id left join phpcms_member as c on b.uid=c.userid '.$where.'  order by a.created_date desc limit '.$page_start.','.$pagesize.'';
-            
             $list=$this->db->fetch_array($this->db->query($sql));
-            $count=$this->db->fetch_array($this->db->query("select count(*) as count from phpcms_yzpay_trades".$where));
+            $count=$this->db->fetch_array($this->db->query("select count(*) as count from phpcms_yzpay_trades as a".$where));
             $res=array('list'=>$list,'count'=>(int)$count[0]['count'],'page'=>$page,'pagesize'=>$pagesize);
             success($res);
         }catch(Exception $e){
@@ -106,7 +83,7 @@ class yzpay extends admin {
     }
 
     function qrcode_get(){
-        $qr_id=$_POST['qr_id'];
+        $qr_id=safe_replace($_POST['qr_id']);
         $yz=$this->Yz();
         success($yz->qrcode_get($qr_id));
 
@@ -118,9 +95,9 @@ class yzpay extends admin {
     }
 
     function checkPay(){
-        $start_create=$_POST['start_create'];
-        $end_create=$_POST['end_create'];
-        $qr_id=$_POST['qr_id'];
+        $start_create=safe_replace($_POST['start_create']);
+        $end_create=safe_replace($_POST['end_create']);
+        $qr_id=safe_replace($_POST['qr_id']);
         try{
             $yz=$this->Yz();
             $list=$yz->yz_trades_list();

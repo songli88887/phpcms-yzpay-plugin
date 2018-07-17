@@ -4,23 +4,24 @@ require_once __DIR__ . '/YZHttpClient.php';
 require_once __DIR__.'/YZTokenClient.php';
 
 class yz{
-    //private $client_id,$client_secret,$kdt_id;
     public function __construct($data){
         $this->config=$data;
     }
 
-    public function createQr($price,$qr_name='充值',$qr_type='QR_TYPE_NOLIMIT'){
+    public function createQr($price,$qr_name='充值',$uid='',$qr_type='QR_TYPE_NOLIMIT'){
         if($price<=0) throw new Exception('金额不正确！');
         $params=array('qr_name'=>$qr_name,'qr_price'=>(float)$price*100,'qr_type'=>$qr_type,'qr_source'=>$this->config['qr_source']);        
         $client=$this->Yz();
         $data=$client->post('youzan.pay.qrcode.create','3.0.0',$params);        
         if(!empty($data['response'])){
+            $data=$data['response'];
+            $data['uid']=$uid;
             $db=pc_base::load_model('yzpay_create_qr_model');
-            $db->insert($data['response']);
+            $db->insert($data);
         }else {
             throw new Exception($data['error_response']['msg']);
         }
-        return $data['response'];
+        return $data;
     }
 
 
@@ -46,11 +47,13 @@ class yz{
         $db=pc_base::load_model('yzpay_trades_model');
         try{
             foreach($list as $i=>$item){
-                $data=$db->get_one(array('tid'=>$item->tid));                
+                
+                $data=$db->get_one(array('tid'=>$item['tid']));
+                
                 if(empty($data)){
                     $db->insert($item);
                 }else{
-                    $db->update($item,array('tid'=>$item->tid));
+                    $db->update($item,array('tid'=>$item['tid']));
                 }
             }
         }catch(Exception $e){
